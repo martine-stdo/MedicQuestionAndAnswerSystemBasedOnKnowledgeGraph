@@ -1,0 +1,12 @@
+openapi --input http://localhost:8121/api//v2/api-docs --output ./apis/generated --client axios
+apis\generated\services\UserControllerService.ts
+
+
+npx eslint --fix E:\Pros\OJ\oj-frontend\generated\core\ApiError.ts
+npx eslint --fix E:\Pros\OJ\oj-frontend\generated\core\CancelablePromise.ts
+npx eslint --fix E:\Pros\OJ\oj-frontend\generated\core\OpenAPI.ts
+npx eslint --fix E:\Pros\OJ\oj-frontend\generated\core\request.ts
+
+
+进度
+完成了第四期的前端编辑器引入

@@ -1,3 +1,14 @@
-Backend/myenv/
-Backend/CrawlData/SourceData/*
-Backend/CrawlData/CleanData/*
+# 忽略 Backend 子项目的不需要的文件
+/Backend/myenv/
+/Backend/CrawlData/SourceData/*
+/Backend/CrawlData/CleanData/*
+/Backend/backend/staticfiles/
+/Backend/backend/media/
+/Backend/backend/.idea/
+/Backend/backend/.vscode/
+/Backend/backend/*.pyc
+
+# 忽略 Frontend 子项目的不需要的文件
+/Frontend/node_modules/
+/Frontend/.idea/
+/Frontend/.vscode/
