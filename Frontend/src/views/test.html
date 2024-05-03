@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="icon" href="/static/css/favicon.ico">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>智慧图普</title>
+<link rel="stylesheet" href="\static\css\data_visual.css">
+<style>
+    * {
+        border: none;
+    }
+
+    /* 缩小下拉列表和按钮的大小 */
+    .form-inline {
+        transform: scale(0.4);
+        transform-origin: left;
+        margin-left: -40px;
+        position: relative;
+        z-index: 999;
+        /* 添加一个足够大的z-index值 */
+    }
+
+    #module-select {
+        position: relative;
+        z-index: 999;
+    }
+
+    /* 缩小下拉列表中选项的字体大小 */
+    #module-select option {
+        font-size: 18px;
+        /* 将字体大小设置为12px（或其他适合的大小） */
+    }
+
+
+
+
+    .KnowlegeGraph {
+        position: absolute;
+        top: 50px;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+    }
+
+    #graph {
+        width: 100%;
+        height: 700px;
+        border: none;
+        margin-top: -120px;
+        /* 使用负值来上移显示范围 */
+    }
+
+    #node-limit-input {
+        width: 220px;
+        height: 140px;
+    }
+</style>
+<script src="https://unpkg.com/neo4j-driver@4.3.3/lib/browser/neo4j-web.min.js"></script>
+<script src="\static\plugins\node_modules\vis-network\standalone\umd\vis-network.min.js"></script>
+</head>
+
+<body>
+    <div class="KnowlegeGraph">
+        <!-- 将第二个网页的内容放在这里 -->
+        <div>
+            <div class="form-inline">
+                <label for="module-select" class="mr-2">选择模块：</label>
+                <select id="module-select" class="form-control mr-2">
+                    <option value="儿科">儿科</option>
+                    <option value="口腔科">口腔科</option>
+                </select>
+                <input type="number" id="node-limit-input" class="form-control mr-2" min="1" max="1000"
+                    placeholder="数量">
+                <button id="load-module" class="btn btn-primary">加载模块</button>
+
+
+            </div>
+            <div id="graph"></div>
+            <div id="info-box"
+                style="display: none; position: absolute; background-color: white; padding: 10px; border: 1px solid black;">
+                <p id="info-text"></p>
+            </div>
+
+            <script>
+                const { driver, auth } = neo4j;
+
+                // 创建Neo4j驱动程序实例
+                const neo4jDriver = driver('bolt://localhost:7687', auth.basic('neo4j', 'password'));
+                const nodeLimitInput = document.getElementById('node-limit-input');
+                // 获取图谱数据
+                async function getGraphData(moduleName, nodeLimit) {
+                    const session = neo4jDriver.session();
+                    try {
+                        const queryString = `MATCH p=(d:Department {name: '${moduleName}'})-[r:contain]-() RETURN p LIMIT ${nodeLimit}`;
+                        const result = await session.run(queryString);
+                        return result.records;
+                    } finally {
+                        session.close();
+                    }
+                }
+
+                // 将图谱数据转换为vis.js兼容的格式
+                function prepareDataForVis(records) {
+                    const nodeMap = new Map();
+                    const edgeMap = new Map();
+
+                    records.forEach(record => {
+                        const path = record.get('p');
+                        const segments = path.segments;
+
+                        segments.forEach(segment => {
+                            const n = segment.start;
+                            const m = segment.end;
+                            const r = segment.relationship;
+
+                            nodeMap.set(n.identity.toString(), { id: n.identity.toString(), label: n.properties.title });
+                            nodeMap.set(m.identity.toString(), { id: m.identity.toString(), label: m.properties.Q });
+
+                            const edgeId = `${n.identity.toString()}-${m.identity.toString()}`;
+                            edgeMap.set(edgeId, { from: n.identity.toString(), to: m.identity.toString(), label: r.type });
+                        });
+                    });
+
+                    const nodes = Array.from(nodeMap.values());
+                    const edges = Array.from(edgeMap.values());
+
+                    return { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+                }
+
+                // 将新的节点添加到前端页面中
+                function addNodesToFrontEnd(relatedNodes, nodes) {
+                    relatedNodes.forEach(relatedNode => {
+                        if (!nodes.get(relatedNode.id)) {
+                            nodes.add(relatedNode);
+                        }
+                    });
+                }
+
+                // 获取与被点击节点关系为“reply”的节点
+                async function getRelatedNodes(nodeId) {
+                    const session = neo4jDriver.session();
+                    try {
+                        const queryString = `MATCH (n)-[:reply]->(m) WHERE id(n) = ${nodeId} RETURN m`;
+                        const result = await session.run(queryString);
+                        return result.records.map(record => {
+                            const node = record.get('m');
+                            return {
+                                id: node.identity.toString(),
+                                label: node.properties.A,
+                            };
+                        });
+                    } finally {
+                        session.close();
+                    }
+                }
+
+
+                // 渲染关系图谱
+                async function renderGraph(moduleName, nodeLimit) {
+                    const graphContainer = document.getElementById('graph');
+                    graphContainer.innerHTML = ''; // 清除容器内容
+
+                    const graphData = await getGraphData(moduleName, nodeLimit);
+                    const { nodes, edges } = prepareDataForVis(graphData);
+
+                    const options = {
+                        nodes: {
+                            shape: 'dot',
+                            size: 20,
+                            font: {
+                                size: 14,
+                                color: '#FFFFFF' // 更改字体颜色为白色
+                            },
+                            borderWidth: 2,
+                            color: {
+                                border: '#8fd3e9', // 更改边框颜色为深灰色
+                                background: '#a4dbfd', // 更改背景颜色为科技绿色
+                                highlight: {
+                                    border: '#999999', // 更改高亮边框颜色为浅灰色
+                                    background: '#A5F' // 更改高亮背景颜色为科技紫色
+                                }
+                            }
+                        },
+
+                        edges: {
+                            width: 2,
+                            color: {
+                                color: '#91c2fd', // 更改边颜色为浅灰色
+                                highlight: '#e683ad' // 更改高亮边颜色为科技紫色
+                            },
+                            arrows: {
+                                to: {
+                                    enabled: true,
+                                    scaleFactor: 0.5
+                                }
+                            }
+                        },
+                        physics: {
+                            stabilization: {
+                                enabled: true,
+                                iterations: 1000,
+                                updateInterval: 100,
+                                onlyDynamicEdges: false,
+                                fit: true
+                            },
+                            barnesHut: {
+                                gravitationalConstant: -2000,
+                                centralGravity: 0.3,
+                                springLength: 95,
+                                springConstant: 0.04,
+                                damping: 0.15, // 将damping值从0.09提高到0.15
+                                avoidOverlap: 0.1
+                            }
+                        }
+                    };
+
+
+                    // 初始化网络
+                    const network = new vis.Network(graphContainer, { nodes, edges }, options);
+
+                    // 添加节点点击事件监听器
+                    network.on('click', async function (params) {
+
+                        if (params.nodes.length > 0) {
+                            const nodeId = params.nodes[0];
+                            const relatedNodes = await getRelatedNodes(nodeId);
+
+                            // 创建已经存在的边缘的集合
+                            const existingEdges = new Set();
+                            edges.forEach(edge => {
+                                existingEdges.add(`${edge.from}-${edge.to}`);
+                            });
+
+                            // 添加新的边连接被点击的节点与新添加的节点，并检查边是否已存在
+                            relatedNodes.forEach(relatedNode => {
+                                addNodesToFrontEnd([relatedNode], nodes);
+
+                                const edgeId = `${nodeId}-${relatedNode.id}`;
+                                if (!existingEdges.has(edgeId)) {
+                                    edges.add({
+                                        from: nodeId,
+                                        to: relatedNode.id,
+                                        label: 'reply',
+                                    });
+                                }
+                            });
+                        }
+
+                        const infoBox = document.getElementById('info-box');
+                        const infoText = document.getElementById('info-text');
+
+                        if (params.nodes.length > 0) {
+                            const nodeId = params.nodes[0];
+                            const clickedNode = nodes.get(nodeId);
+
+                            if (infoBox.style.display === 'none') {
+                                infoText.textContent = clickedNode.label;
+
+                                // 计算文本框位置
+                                const canvasPos = network.canvasToDOM({ x: params.pointer.canvas.x, y: params.pointer.canvas.y });
+                                infoBox.style.left = `${canvasPos.x}px`;
+                                infoBox.style.top = `${canvasPos.y}px`;
+
+                                // 显示文本框
+                                infoBox.style.display = 'block';
+                            } else {
+                                // 隐藏文本框
+                                infoBox.style.display = 'none';
+                            }
+                        } else {
+                            // 隐藏文本框
+                            infoBox.style.display = 'none';
+                        }
+                    });
+
+                }
+
+                // 在页面加载时调用renderGraph
+                window.addEventListener('DOMContentLoaded', () => {
+                    const loadModuleButton = document.getElementById('load-module');
+                    loadModuleButton.addEventListener('click', () => {
+                        const moduleSelect = document.getElementById('module-select');
+                        const moduleName = moduleSelect.value;
+                        const nodeLimit = nodeLimitInput.value;
+                        renderGraph(moduleName, nodeLimit);
+                    });
+
+                    // 初始渲染图谱（可选择任意默认模块）
+                    renderGraph('儿科', 10);
+                });
+
+                infoBox.addEventListener('click', () => {
+                    infoBox.style.display = 'none';
+                });
+
+            </script>
+        </div>
+        <script src="\static\visual_js\flexible.js"></script>
+        <script src="\static\visual_js\jquery.js"></script>
+        <!-- Add jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <!-- Add Bootstrap JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body
+
+</html>
