@@ -4,8 +4,7 @@
       <a-layout-header class="header"></a-layout-header>
       <a-space class="space">
         <img src="../assets/logo2.png" class="logo" />
-        <div class="title">OJ 平台</div>
-        <div class="slogan">欢迎使用由黑夜梦想家开发的OJ平台</div>
+        <div class="title">欢迎使用基于知识图谱的医学问答系统</div>
       </a-space>
       <a-layout-content class="content">
         <router-view />

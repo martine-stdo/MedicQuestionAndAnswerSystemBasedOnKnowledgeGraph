@@ -1,13 +1,13 @@
 <template>
   <a-row id="globalHeader" class="grid-demo" align="center" :wrap="false">
-    <a-col flex="100px">
+    <a-col flex="320px">
       <div
         :style="{ padding: 0, marginRight: '38px' }"
         @click="handleIconClick"
       >
         <div class="titleBar">
-          <img class="icon" src="../assets/logo2.png" />
-          <div class="title">QA系统</div>
+          <img class="icon" src="../assets/kg_logo.png" />
+          <div class="title">基于系统知识图谱的医疗问答系统</div>
         </div>
       </div>
     </a-col>
@@ -82,7 +82,6 @@ const doMenuClick = (key: string) => {
 const handleIconClick = () => {
   router.push("/");
 };
-
 //获取用户登录信息模块
 
 // console.log(store.state.user.loginUser);
@@ -102,17 +101,19 @@ const handleIconClick = () => {
   align-items: center;
 }
 
-.titleBar .title {
-  flex-grow: 1; /* 让 .title 元素横向填充整个可用空间 */
-}
-
 .icon {
   height: 50px;
+  width: 50px; /* 设置宽度与高度相同 */
+  border-radius: 50%; /* 将边框半径设置为宽度和高度的一半 */
+  margin-left: 15px;
 }
 
 .title {
   color: #444;
-  margin-left: 16px;
+  margin-left: 20px; /* 左边外边距 */
+  margin-right: 20px; /* 右边外边距 */
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .contact a {

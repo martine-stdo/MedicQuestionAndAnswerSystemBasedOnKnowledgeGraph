@@ -21,7 +21,9 @@
 }
 
 #basicLayout .content {
-  background: linear-gradient(#e66465, #9198e5);
+  /* background: linear-gradient(#e66465, #9198e5); */
+  background: url(https://api.bimg.cc/random);
+
   margin-bottom: 16px;
   padding: 20px;
 }
