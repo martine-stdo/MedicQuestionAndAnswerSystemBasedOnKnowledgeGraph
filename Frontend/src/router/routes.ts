@@ -8,6 +8,7 @@ import UserLayout from "@/layouts/UserLayout.vue";
 import ExampleView from "@/views/ExampleView.vue";
 import ChatBotView from "@/views/ChatBotView.vue";
 import DataView from "@/views/DataView.vue";
+import KnowledgeGraphView from "@/views/KnowledgeGraphView.vue";
 
 export const routes: Array<RouteRecordRaw> = [
   {
@@ -35,7 +36,7 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "知识图谱",
-    component: ExampleView,
+    component: KnowledgeGraphView,
   },
   {
     path: "/chat",
