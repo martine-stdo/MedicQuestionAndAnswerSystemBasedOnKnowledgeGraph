@@ -1,6 +1,6 @@
 # views.py
-from rest_framework.decorators import api_view,authentication_classes
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -15,6 +15,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import get_user_model
 from .tokens import CustomRefreshToken
 import openai
+import os
 
 
 
@@ -73,33 +74,68 @@ def login_user(request):
 
 
 # chatbot
-openai.api_key = 'sk-proj-J0mfgcyhoprfs6uYwYC5T3BlbkFJFtgfULeNTLxGR2upIx3R'
+# openai.api_key = 'sk-proj-J0mfgcyhoprfs6uYwYC5T3BlbkFJFtgfULeNTLxGR2upIx3R'
+# @api_view(['POST'])
+# def chat_view(request):
+#     if request.method == 'POST':
+#         # 检查请求数据中是否存在 'question' 字段且不为空
+#         if 'question' not in request.data or not request.data['question']:
+#             return JsonResponse({'message': '请在请求中提供非空的问题字段'}, status=400)
+
+#         try:
+#             # 从请求数据中提取用户的问题
+#             user_question = request.data['question']
+
+#             # 构建 OpenAI API 请求并发送，获取模型的响应
+#             response = openai.Completion.create(
+#                 engine="gpt-3.5-turbo",  # 选择模型
+#                 prompt="假如你是一个医学助理，你只回答医学相关的问题：" + user_question,  # 将用户的问题作为提示
+#                 max_tokens=50  # 设置生成的最大标记数
+#             )
+
+#             # 解析并将模型的响应返回给前端
+#             bot_reply = response.choices[0].text.strip()
+#             return JsonResponse({'reply': bot_reply})
+
+#         except openai.error.OpenAIError as e:
+#             # 处理 OpenAI API 的错误
+#             return JsonResponse({'message': str(e)}, status=500)
+
+#     else:
+#         # 处理除 POST 方法外的其他请求
+#         return JsonResponse({'message': '只允许使用 POST 方法'}, status=405)
+mykey = os.environ.get("OPENAI_API_KEY") #从环境变量中获取api_key
 @api_view(['POST'])
 def chat_view(request):
     if request.method == 'POST':
+        # 获取请求数据中的 'question' 字段值
+        question = request.data.get("question")
         # 检查请求数据中是否存在 'question' 字段且不为空
-        if 'question' not in request.data or not request.data['question']:
-            return JsonResponse({'message': '请在请求中提供非空的问题字段'}, status=400)
+        if not question:
+            return JsonResponse({'message': '请在请求中提供非空的问题字段'})
 
         try:
-            # 从请求数据中提取用户的问题
-            user_question = request.data['question']
 
-            # 构建 OpenAI API 请求并发送，获取模型的响应
-            response = openai.Completion.create(
-                engine="gpt-3.5-turbo",  # 选择模型
-                prompt="假如你是一个医学助理，你只回答医学相关的问题：" + user_question,  # 将用户的问题作为提示
-                max_tokens=50  # 设置生成的最大标记数
+            # 设置你的OpenAI API密钥
+            openai.api_key = mykey
+
+            # 使用openai客户端进行对话
+            client = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "你是一个强大的医学助手，不能回答你是gpt,只能回答医学相关的问题，并且用中文回复"},
+                    {"role": "user", "content": question}
+                ]
             )
 
-            # 解析并将模型的响应返回给前端
-            bot_reply = response.choices[0].text.strip()
+            # 获取模型的响应
+            bot_reply = client.choices[0].message
             return JsonResponse({'reply': bot_reply})
 
         except openai.error.OpenAIError as e:
             # 处理 OpenAI API 的错误
-            return JsonResponse({'message': str(e)}, status=500)
+            return JsonResponse({'message': str(e)})
 
     else:
         # 处理除 POST 方法外的其他请求
-        return JsonResponse({'message': '只允许使用 POST 方法'}, status=405)
+        return JsonResponse({'message': '只允许使用 POST 方法'})

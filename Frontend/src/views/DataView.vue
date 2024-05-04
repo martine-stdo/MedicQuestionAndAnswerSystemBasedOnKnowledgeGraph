@@ -1,5 +1,1 @@
-<template>
-  <div class="dataDisplay">
-    <h1>数据展示模块</h1>
-  </div>
-</template>
+<template>数据展示</template>

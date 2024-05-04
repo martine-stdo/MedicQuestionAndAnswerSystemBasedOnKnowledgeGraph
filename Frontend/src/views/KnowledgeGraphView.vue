@@ -400,7 +400,7 @@ export default {
   height: 510px;
   border: none;
   background: #eeeeee;
-  opacity: 0.8;
+  opacity: 0.95;
   border-radius: 15px;
 }
 

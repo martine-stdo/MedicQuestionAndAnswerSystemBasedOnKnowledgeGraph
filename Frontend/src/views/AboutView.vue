@@ -96,7 +96,7 @@ export default {
   position: relative;
   top: 150px;
   left: 450px;
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.8);
   text-align: center;
   padding: 10px;
 }
