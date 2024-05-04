@@ -34,6 +34,12 @@ export const routes: Array<RouteRecordRaw> = [
   },
 
   {
+    path: "/datas",
+    name: "数据展示",
+    component: DataView,
+  },
+
+  {
     path: "/",
     name: "知识图谱",
     component: KnowledgeGraphView,
@@ -43,11 +49,7 @@ export const routes: Array<RouteRecordRaw> = [
     name: "智慧问答",
     component: ChatBotView,
   },
-  {
-    path: "/datas",
-    name: "数据展示",
-    component: DataView,
-  },
+
   {
     path: "/about",
     name: "关于我们",
@@ -67,9 +69,9 @@ export const routes: Array<RouteRecordRaw> = [
   },
   //给路由增加个属性控制显示还是隐藏
   {
-    path: "/hide",
+    path: "/noAuth",
     name: "隐藏页面",
-    component: ExampleView,
+    component: NoAuthView,
     meta: {
       hideInMenu: true,
     },

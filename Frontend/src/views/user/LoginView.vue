@@ -22,10 +22,16 @@
         />
       </a-form-item>
       <a-form-item field="isRead" class="agreement-checkbox">
-        <a-checkbox v-model="form.isRead">同意用户注册协议</a-checkbox>
+        <a-checkbox v-model="form.isRead">同意用户协议</a-checkbox>
       </a-form-item>
+
       <a-form-item>
         <a-button html-type="submit" class="login-button">登录</a-button>
+      </a-form-item>
+      <a-form-item class="toRegister">
+        <a href="http://localhost:8080/user/register" style="margin-left: 80px"
+          >还没有账号，点击注册</a
+        >
       </a-form-item>
     </a-form>
   </div>

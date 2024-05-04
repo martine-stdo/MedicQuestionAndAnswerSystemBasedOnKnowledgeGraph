@@ -16,8 +16,22 @@
 import BasicLayout from "@/layouts/BasicLayout";
 import { onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { ACCESS_ENUM } from "../src/access/accessEnum";
+
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
 const route = useRoute();
+
+const router = useRouter();
+const store = useStore();
+
+// onMounted(() => {
+//   const userAccesss = store.state.loginUser?.userRole ?? ACCESS_ENUM.NOT_LOGIN;
+//   if (userAccesss === ACCESS_ENUM.NOT_LOGIN) {
+//     router.push("/user/login");
+//   }
+// });
 
 /**
  * 全局初始化函数，全局单次调用的代码都可以写在这里

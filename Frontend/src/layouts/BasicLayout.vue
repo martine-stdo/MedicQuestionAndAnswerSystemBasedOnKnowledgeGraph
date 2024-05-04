@@ -8,7 +8,9 @@
         <router-view />
       </a-layout-content>
       <a-layout-footer class="footer">
-        <a href="http://www.nighterdream.cn/" class="href">nighterdream</a>
+        <p class="schoolMessage">
+          Copyright &copy; 武汉轻工大学 数学与计算机学院 2024
+        </p>
       </a-layout-footer>
     </a-layout>
   </div>
@@ -31,6 +33,7 @@
 #basicLayout .footer {
   background: #efefef;
   padding: 16px;
+  height: 16px;
   position: sticky;
   bottom: 0;
   left: 0;

@@ -3,14 +3,27 @@
     <a-layout style="min-height: 100vh">
       <a-layout-header class="header"></a-layout-header>
       <a-space class="space">
-        <img src="../assets/logo2.png" class="logo" />
+        <img
+          src="../assets/kg_logo.png"
+          class="logo"
+          style="
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+            margin-left: 15px;
+            margin-top: -2px;
+            margin-bottom: 2px;
+          "
+        />
         <div class="title">欢迎使用基于知识图谱的医学问答系统</div>
       </a-space>
       <a-layout-content class="content">
         <router-view />
       </a-layout-content>
       <a-layout-footer class="footer">
-        <a href="http://www.nighterdream.cn/" class="href">nighterdream</a>
+        <p class="schoolMessage">
+          Copyright &copy; 武汉轻工大学 数学与计算机学院 2024
+        </p>
       </a-layout-footer>
     </a-layout>
   </div>
@@ -63,10 +76,9 @@
 }
 
 #UserLayout .content {
-  background: linear-gradient(#e66465, #9198e5);
+  background: url(https://api.bimg.cc/random);
   margin-bottom: 16px;
   padding: 20px;
-  animation: gradient 5s linear infinite;
 }
 
 #UserLayout .footer {
@@ -74,6 +86,7 @@
   padding: 16px;
   position: sticky;
   bottom: 0;
+  height: 16px;
   left: 0;
   right: 0;
   text-align: center;

@@ -13,7 +13,7 @@ export default {
     loginUser: {
       userName: "未登录",
       userAvatar_url: "",
-      // userRole: ACCESS_ENUM.NOT_LOGIN,
+      userRole: ACCESS_ENUM.NOT_LOGIN,
     },
   }),
 

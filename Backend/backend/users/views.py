@@ -123,7 +123,7 @@ def chat_view(request):
             client = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "你是一个强大的医学助手，不能回答你是gpt,只能回答医学相关的问题，并且用中文回复"},
+                    {"role": "system", "content": "你是一个强大的医学助手，不能回答你是gpt,只能回答医学相关的问题，不要回答医学以外的问题，并且用中文回复"},
                     {"role": "user", "content": question}
                 ]
             )
